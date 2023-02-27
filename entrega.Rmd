@@ -1,0 +1,256 @@
+---
+title: "Informe 1 corte"
+author: "Andres Acevedo"
+date: "2023-02-25"
+output:
+  
+  html_document:
+    toc: yes
+    toc_depth: 6
+    toc_float: yes
+    collapsed: yes
+    smooth_scroll: yes
+    theme: journal
+    highlight: kate
+    df_print: paged
+    code_folding: show
+---
+#link github
+
+https://github.com/AceMora/Informe1
+
+
+ explicacion  funciones de transformacion 
+Discuta en detalle 2 de las funciones para la transformación de datos explicadas en https:r4ds.had.co.nz/transform.html
+Una de las funciones de transformacion que mas me llamo la atencion es la de mutate, pues  esta agrega a un dataset otras variables o columnas, lo cual es conveniente, sobretodo para cuando se requiere hacer estadisticas, como por ejemplo: si nos piden hallar la desviacion estandar de una serie de datos y lo necesitamos adjuntar para mostrar con los datos del dataset, es necesario acudir a la funcion mutate.  Ahora estas funciones de transformacion   se pueden combinar dependiendo la necesidad, dado que retomando el ejemplo anterior de la desviacion estandar , no solo mutate es de gran utilidad, pues si nos pidieran tomar ese resultado de la desv estandar y ver cual es l mayor hasta la menor usariamos otra funcion llamada arrang.
+
+
+
+tidyverse ayuda a visualizar importar modelar datos
+```{r message=FALSE,warning=FALSE}
+library(tidyverse)
+```
+
+Esto para exportar base de datos a excel
+```{r message=FALSE,warning=FALSE}
+flights <- read_csv("base_datos.csv")
+flights
+```
+
+
+
+
+# EJERCICIOS
+
+
+# Numeros primos
+Para ver el resultado de los 100 primeros numeros primos, es necesario conocer  el residuio del numero en cuestion respecto a los demas numeros concecutivos .
+
+Si al obtener el residuio  es exacto solo en dos iteraciones significa que el numero es primo de lo contreario es compuesto
+
+```{r}
+numero<-1
+
+while (numero<= 100){
+  
+  
+  contador <- 1
+  i<-0
+  
+        while (contador <=  numero){
+      
+          if (numero %% contador == 0){
+             i <- i + 1
+              
+          }
+          
+          contador <- contador + 1
+          
+        }
+      
+      if (i == 2){
+        print(numero)
+        
+        
+      }
+      
+         
+  numero <- numero +1  
+    
+}
+```
+
+
+
+
+# 5.2.4 Exercises: items 1, and 2
+
+ 1. Tuvo un etraso de llegada_de dos o más horas
+```{r}
+retraso_llegada<- filter(flights, arr_delay >= 2)
+retraso_llegada
+```
+  2. Voló a Houston ( IAHo HOU)
+```{r}
+volo_a_houston <- filter(flights, dest == "IAH" | dest == "HOU")
+volo_a_houston
+```
+  
+
+
+# 5.3.1 Exercises: all items
+
+ 1.  is.na se usa para filtrar todos los datos que contengan N/A
+ 
+```{r}
+orden_des_2 <- arrange(flights,desc(is.na(dep_delay)))
+orden_des_2
+```
+ 2."encontrar los vuelos más retrasados"
+ 
+```{r}
+vuelos_retraso_salida <- arrange(flights, desc(dep_delay))
+vuelos_retraso_salida
+```
+ 
+
+Encuentra los vuelos que salieron antes.
+```{r}
+vuelos_salieron_antes <- arrange(flights, dep_delay)
+vuelos_salieron_antes
+```
+ 3. velocidad más alta
+
+Para la velocidad max debe ser distancia la mayor  y hora la menor  v=m/s
+```{r}
+velocidad_alta <- arrange(flights, desc(distance) / hour)
+velocidad_alta
+```
+ 4. ¿Qué vuelos viajaron más lejos? ¿Cuál viajó menos?
+ 
+```{r}
+mas_recorrido <- arrange(flights, desc(distance))
+mas_recorrido
+```
+ 
+ ¿Cuál viajó menos?
+```{r}
+menoss_recorrido <- arrange(flights, distance)
+menoss_recorrido
+```
+ 
+# 5.4.1 Exercises: items 2, 3, and 4
+
+ 1.
+ funcion select es para seleccionar columnas
+```{r}
+seleccion <-select(flights, arr_delay, dest)
+seleccion
+```
+ 
+ 2.  
+¿Qué sucede si incluye el nombre de una variable
+varias veces en una select()llamada?
+respuesta= sobreescribe los datos de la misma columna 
+```{r}
+seleccion3 <-select(flights, arr_delay, arr_delay)
+seleccion3
+```
+ 3.     
+ ¿ Qué hace la any_of()función? ¿Por qué podría ser útil 
+ junto con este vector?
+
+vars es el nombre del vector 
+```{r}
+vars <- c("year", "month", "day", "dep_dela", "arr_delay")
+```
+ la funcion any_of entrega los datos del emcabezado del vector 
+ importados del dataset
+```{r}
+funcion_any <- select(flights, any_of(vars))
+funcion_any
+```
+ 4.
+ Cómo tratan los ayudantes selectos el caso de forma predeterminada?
+¿Cómo se puede cambiar ese valor predeterminado?
+
+ esto filtra todas las columnas que dicen time
+```{r}
+prueba<-select(flights, contains("TIME"))
+prueba
+```
+# 5.5.2 Exercises: items 1, and 2
+
+1.   dep_time y sched_dep_time son convenientes a la vista, pero difíciles de calcular porque en realidad no son números continuos. Conviértalos a una representación más conveniente de la cantidad de minutos desde la medianoche.
+
+la funcion mutate sirve para agregar datos o colunmas al dataset original
+dep_time:
+```{r}
+vuelos_dataset <- mutate(flights, salida_programada_min = 
+                           (sched_dep_time / 100 * 60))
+vuelos_dataset
+```
+sched_dep_time
+```{r}
+vuelos_dataset <- mutate(vuelos_dataset, tiempo_espera_min =
+                           (dep_time / 100 * 60))
+vuelos_dataset
+```
+
+ver desde la media noche
+```{r}
+media_noche <- arrange(vuelos_dataset, desc(salida_programada_min))
+media_noche
+```
+2. Comparar air_timecon arr_time - dep_time. Que esperas ver? ¿Que ves?
+¿Qué necesitas hacer para arreglarlo?
+
+seleccionar para ver las tres variables y determinar que sucede
+```{r}
+seleccionar <- select(vuelos_dataset, air_time, arr_time , dep_time)
+seleccionar
+```
+Que esperas ver?---------
+que al tomar la diferencia  de air_time con  (arr_time - dep_time) den
+resultados parecidos
+```{r}
+tiempo_vuelos <- mutate( vuelos_dataset , tiempo_en_aire_2  = 
+                           arr_time  -  dep_time )
+tiempo_vuelos
+```
+¿Que ves?---------
+al comparar air time con tiempo_en_aire_2 se ven diferencias muy significativas
+
+¿Qué necesitas hacer para arreglarlo?---------
+la diferencia entre hora de llegada y hora de salida no coincide porque
+la variable tiempo en el aire esta en minutos por lo cual debemos calcular
+dicha diferencia con el mismo tipo de datos
+
+```{r}
+tiempo_vuelos <- select(mutate( vuelos_dataset , tiempo_en_aire_2  = 
+                           (arr_time/100)*60  -  (dep_time/100)*60 ) ,
+                        air_time, tiempo_en_aire_2)
+tiempo_vuelos
+```
+aunque siguen existiendo diferencias, se observa que son mas reducidas 
+que en el primer calculo en variables en min y h
+
+#  5.7.1 Exercises: item 2
+2.
+Qué avión ( tailnum) tiene el peor récord de puntualidad?
+
+Para este ejercicio es necesario agrupar los datos, para esto usamos la funcion  group_by  con la colunma o datos a recolectar, luego aplicamos el promedio por medio de la funcion  summarise esto para obtener un valor nominal y por ultimo usamos arrange(desc para ver de forma ascendente a descendente  
+```{r}
+ flights %>%
+  group_by(tailnum) %>% 
+  summarise(prom_retardo = mean(arr_delay, na.rm = T),
+            n = n()) %>%
+  arrange(desc(prom_retardo))
+
+```
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
